@@ -1,0 +1,98 @@
+package com.kumar.user1;
+
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
+import android.support.v7.app.ActionBarActivity;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.prakash.user.mainactivity.R;
+
+public class ShakeCompassActivity extends ActionBarActivity implements SensorEventListener {
+    SensorManager sensorManager;
+    TextView tvShake;
+    Sensor compassShake;
+    private static final int SHAKE_THRESHOLD = 800;
+    long lastUpdate;
+    float x,y,z;
+    float last_x,last_y,last_z;
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_shake_compass);
+        sensorManager=(SensorManager)getSystemService(SENSOR_SERVICE);
+        compassShake= sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        tvShake=(TextView)findViewById(R.id.tvShake);
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        sensorManager.registerListener(this,compassShake,sensorManager.SENSOR_DELAY_UI);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        sensorManager.unregisterListener(this);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_shake_compass, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_settings) {
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        long curTime = System.currentTimeMillis();
+        // only allow one update every 100ms.
+        if ((curTime - lastUpdate) > 100) {
+            long diffTime = (curTime - lastUpdate);
+            lastUpdate = curTime;
+
+            x = event.values[SensorManager.DATA_X];
+            y = event.values[SensorManager.DATA_Y];
+            z = event.values[SensorManager.DATA_Z];
+
+            float speed = Math.abs(x+y+z - last_x - last_y - last_z) / diffTime * 10000;
+
+            if (speed > SHAKE_THRESHOLD) {
+                Log.d("sensor", "shake detected w/ speed: " + speed);
+                tvShake.setText("shake detected w/ speed: " + speed);
+            }
+            last_x = x;
+            last_y = y;
+            last_z = z;
+        }
+
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+    }
+}

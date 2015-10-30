@@ -1,0 +1,121 @@
+package com.example.user.myapplication;
+
+import android.app.Activity;
+import android.content.Context;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
+import android.os.Bundle;
+import android.os.Vibrator;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
+
+/**
+ * Created by User on 10/13/2015.
+ */
+public class JokesActivity extends Activity implements SensorEventListener {
+
+
+    String[] jokes = {"A blonde has sharp pains in her side, so she goes to the hospital. The doctor examines her and says, \"You have acute appendicitis.\"\n" +
+            "The blonde says, \"That's sweet, doc, but I came here to get medical help.\"", "Q: How do you know that carrots are good for your eyesight?\n" +
+            "A: Have you ever seen a rabbit with glasses?", "Q: Why are there hardly any dental professionals in Arkansas?\n" +
+            "A: Because it takes 35 patients to make a full set of teeth.", "Q: Why did the ants dance on the jam jar?\n" +
+            "A: The lid said, \"Twist to open.\"", "Did you hear about the guy they found dead with his head in his cornflakes?\n" +
+            "The police thought it was a cereal killer."};
+    int jokeNumber = 0;
+    TextView tv1;
+    Button btn1, btn2;
+    SensorManager sensorManager;
+    Sensor Shake;
+    private static final int SHAKE_THRESHOLD = 1400;
+    long lastUpdate;
+    float x, y, z;
+    float last_x, last_y, last_z;
+    Vibrator vibrator;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.jokes_layout);
+        tv1 = (TextView) findViewById(R.id.tv1);
+        //tv1.setText(jokes[jokeNumber]);
+        btn1 = (Button) findViewById(R.id.btn1);
+        btn2 = (Button) findViewById(R.id.btn2);
+        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        Shake = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        vibrator=(Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
+    }
+
+    public void nextJoke(View view) {
+        if (jokeNumber < jokes.length - 1) {
+            jokeNumber++;
+            tv1.setText(jokes[jokeNumber]);
+
+        }
+    }
+
+    public void prevJoke(View view) {
+        if (jokeNumber > 0) {
+            jokeNumber--;
+            tv1.setText(jokes[jokeNumber]);
+
+        }
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        sensorManager.registerListener(this, Shake, sensorManager.SENSOR_DELAY_UI);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        sensorManager.unregisterListener(this);
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        long curTime = System.currentTimeMillis();
+        // only allow one update every 100ms.
+        if ((curTime - lastUpdate) > 100) {
+            long diffTime = (curTime - lastUpdate);
+            lastUpdate = curTime;
+
+            x = event.values[SensorManager.DATA_X];
+            y = event.values[SensorManager.DATA_Y];
+            z = event.values[SensorManager.DATA_Z];
+
+            float speed = Math.abs(x + y + z - last_x - last_y - last_z) / diffTime * 10000;
+
+            if ((speed > SHAKE_THRESHOLD) &&(jokeNumber <(jokes.length - 1))) {
+                jokeNumber++;
+                tv1.setText(jokes[jokeNumber]);
+                //Toast.makeText(getBaseContext(),"Joke changed",Toast.LENGTH_SHORT).show();
+                //vibrator.vibrate(1000);
+                Log.d("sensor", "shake detected w/ speed: " + speed);
+                //tvShake.setText("shake detected w/ speed: " + speed);
+                }
+            else{
+                for(;((speed > SHAKE_THRESHOLD)&&(jokeNumber>0));jokeNumber--){
+                    tv1.setText(jokes[jokeNumber]);
+
+                }
+
+            }
+                last_x = x;
+                last_y = y;
+                last_z = z;
+            }
+        }
+
+        @Override
+        public void onAccuracyChanged (Sensor sensor,int accuracy){
+
+        }
+    }

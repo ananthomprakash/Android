@@ -1,0 +1,50 @@
+import android.animation.ObjectAnimator;
+import android.app.Activity;
+import android.support.v7.app.ActionBarActivity;
+import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.TextView;
+
+
+public class MainActivity extends Activity {
+
+    EditText etFirstNumber;
+    EditText etSecondNumber;
+    TextView tvResult;
+    public void doCalculation(View view)
+    {
+        double num1=Double.parseDouble(etFirstNumber.getText().toString());
+        double num2=Double.parseDouble(etSecondNumber.getText().toString());
+        ObjectAnimator objectAnimator=ObjectAnimator.ofFloat(tvResult,"translationX",0,200,0,200,0,200,0);
+        objectAnimator.setDuration(1000);
+        objectAnimator.start();
+        switch (view.getId())
+        {
+            case R.id.btn1:
+                tvResult.setText(" " + (num1+num2));
+                break;
+            case R.id.btn2:
+                tvResult.setText(" " + (num1-num2));
+                break;
+            case R.id.btn3:
+                tvResult.setText(" " + (num1*num2));
+                break;
+            case R.id.btn4:
+                tvResult.setText(" " + (num1/num2));
+                break;
+
+        }
+    }
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        etFirstNumber =(EditText)findViewById(R.id.etFirstNumber);
+        etSecondNumber =(EditText)findViewById(R.id.etSecondNumber);
+        tvResult=(TextView)findViewById(R.id.tvResult);
+
+    }
+}

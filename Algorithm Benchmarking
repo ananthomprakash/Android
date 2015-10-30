@@ -1,0 +1,81 @@
+package com.example.user.myapplication;
+
+import android.app.Activity;
+import android.support.v7.app.ActionBarActivity;
+import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.RadioGroup;
+import android.widget.TextView;
+
+
+public class BenchmarkActivity extends Activity {
+    private static int[] array;
+    private EditText etArraySize;
+    private  TextView tvStatus;
+    private RadioGroup rgCase;
+    private TextView tvBubbleResult;
+    private TextView tvSelectionResult;
+    public void doCal(View view){
+        int size=0;
+        try {
+            size=Integer.parseInt(etArraySize.getText().toString());
+        }
+        catch(Exception ex)
+        {
+            tvStatus.setText("please enter a number");
+        }
+
+        switch(view.getId())
+        {
+            case R.id.btnGenerateArray:
+
+                switch(rgCase.getCheckedRadioButtonId()){
+                    case R.id.rbBestCase:
+                        array=ArraySorting.generateNaturalNumbers(size);
+                        tvStatus.setText("Sorted Array of size "+ size +" is Generated");
+                        break;
+                    case R.id.rbAverageCase:
+                        array=ArraySorting.generateRandomIntArray(size);
+                        tvStatus.setText("Random Array of size "+ size +" is Generated");
+                        break;
+                    case R.id.rbWorstCase:
+                        break;
+                }
+                break;
+            case R.id.btnBubbleSort:
+                int[] bubbleArray=Sorting.cloneArray(array);
+                long bStart=System.currentTimeMillis();
+                ArraySorting.bubbleSort(bubbleArray);
+
+                tvBubbleResult.setText(""+(System.currentTimeMillis()- bStart)+ " milli seconds");
+                break;
+            case R.id.btnSelectionSort:
+                int[] SelectionArray=Sorting.cloneArray(array);
+                long sStart=System.currentTimeMillis();
+                ArraySorting.selectionSort(SelectionArray);
+
+                tvSelectionResult.setText(""+(System.currentTimeMillis()- sStart)+ " milli seconds");
+                break;
+
+        }
+    }
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_benchmark);
+        etArraySize=(EditText)findViewById(R.id.etArraySize);
+        tvStatus=(TextView)findViewById(R.id.tvStatus);
+        rgCase=(RadioGroup)findViewById(R.id.rgCase);
+        tvBubbleResult=(TextView)findViewById(R.id.tvResult1);
+        tvSelectionResult=(TextView)findViewById(R.id.tvResult2);
+
+    }
+
+
+	
+}
